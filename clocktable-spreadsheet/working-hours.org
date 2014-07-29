@@ -1,0 +1,56 @@
+#+TITLE:     Working hours summary
+#+AUTHOR:    Christoph Lange
+#+EMAIL:     math.semantic.web@gmail.com
+#+DATE:      2014-07-29
+#+OPTIONS:   num:nil toc:nil
+
+* Documentation
+  Suppose you have an employment contract that obliges you to work a fixed number of hours per week.  Let [[file:log.org][log.org]] be a file in which you log your working hours.  This file computes your overtime balance as explained below.
+
+  This is what you have to do every week:
+
+  1. Copy the tree with the clocktable of the most recent week, replacing all occurrences of =-WN= with =-WN+1=, e.g. =-W02= → =-W03=.
+  2. Add a new row to the evaluation table.
+  3. Enter the days you have worked in this week, usually 5 minus the number of holidays.
+  4. Recalculate the row, e.g. with =C-c *=.
+
+  Here is how it works:
+
+  1. For each week, this file has a clock table that computes the sum of working hours logged.
+  2. The evaluation spreadsheet, which has one row per week, looks up that sum in the respective clock table.
+  3. Column 3 may not be necessary for you.  I had a change of contract (and thus of the amount of hours per week) this year, which is why I made the value of column 3 conditional on the week.
+  4. The datatype of several columns is set to “time”.
+  5. For syntactic reasons, I had to use Lisp expressions to reference cells, whereas in simpler setups Calc expressions would have sufficed.
+     
+  [[https://github.com/clange/org-mode/clocktable-spreadsheet][Original source of this example]]
+* Evaluation
+  | Week     | Days |     Full |     Duty | Worked |   Balance | Balance Year |
+  |----------+------+----------+----------+--------+-----------+--------------|
+  | 2014-W01 |    2 | 19:55:00 | 07:58:00 |   7:14 | -00:44:00 |    -00:44:00 |
+  | 2014-W02 |    5 | 39:50:00 | 39:50:00 |   6:56 | -32:54:00 |    -33:38:00 |
+#+TBLFM: $1='(concat "2014-W" (format "%02d" (1- (org-table-current-dline))))::$3=if(@# - 1 <= 1, 19:55, 39:50);T::$4=($2/5)*$3;T::$5='(replace-regexp-in-string "\*" "" (org-table-get-remote-range (concat "T2014-W" (format "%02d" (1- @#))) (concat "@" "3" "$" "3")))::$6=$5-$4;T::$7=vsum(@<<$-1..$-1);T
+
+  Notes:
+  * =remote(T2014W01, @3$3)= would work for lookup from a single clock table with a fixed name.
+  * In the function for column 5 I have not been able to reuse the value from column 1.
+* 2014-W01 (only 2014)
+  * [2014-01-01 Wed] public holiday
+#+NAME: T2014-W01
+#+BEGIN: clocktable :tstart "<2014-01-01 Wed 00:00>" :tend "<2014-01-06 Mon 00:00>" :maxlevel 0 :scope ("log.org") :indent
+#+CAPTION: Clock summary at [2014-07-29 Tue 16:35]
+| File    | Headline         | Time   |
+|---------+------------------+--------|
+|         | ALL *Total time* | *7:14* |
+|---------+------------------+--------|
+| log.org | *File time*      | *7:14* |
+#+END:
+* 2014-W02
+#+NAME: T2014-W02
+#+BEGIN: clocktable :block 2014-W02 :maxlevel 0 :scope ("log.org") :indent 
+#+CAPTION: Clock summary at [2014-07-29 Tue 16:35], for week 2014-W02.
+| File    | Headline         | Time   |
+|---------+------------------+--------|
+|         | ALL *Total time* | *6:56* |
+|---------+------------------+--------|
+| log.org | *File time*      | *6:56* |
+#+END:
