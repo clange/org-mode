@@ -12,8 +12,8 @@
   1. Copy the tree with the clocktable of the most recent week, replacing all occurrences of =-WN= with =-WN+1=, e.g. =-W02= → =-W03=.
   2. Add a new row to the evaluation table.
   3. Enter the days you have worked in this week, usually 5 minus the number of holidays.
-  4. Recalculate the row, e.g. with =C-c *=.
-
+  4. Recalculate the row, e.g. with =C-c *=.  You can automate this step, e.g., from a Makefile, by running my [[https://github.com/clange/scripts/tree/master/org-recompute-clocktables][org-recompute-clocktables]] script.
+  
   Here is how it works:
 
   1. For each week, this file has a clock table that computes the sum of working hours logged.
